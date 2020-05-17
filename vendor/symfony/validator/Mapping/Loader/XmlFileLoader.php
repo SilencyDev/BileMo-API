@@ -167,11 +167,13 @@ class XmlFileLoader extends FileLoader
     /**
      * Loads the XML class descriptions from the given file.
      *
+     * @param string $path The path of the XML file
+     *
      * @return \SimpleXMLElement The class descriptions
      *
      * @throws MappingException If the file could not be loaded
      */
-    protected function parseFile(string $path)
+    protected function parseFile($path)
     {
         try {
             $dom = XmlUtils::loadFile($path, __DIR__.'/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd');

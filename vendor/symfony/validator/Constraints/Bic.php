@@ -48,7 +48,8 @@ class Bic extends Constraint
     public function __construct($options = null)
     {
         if (!class_exists(Countries::class)) {
-            throw new LogicException('The Intl component is required to use the Bic constraint. Try running "composer require symfony/intl".');
+            // throw new LogicException('The Intl component is required to use the Bic constraint. Try running "composer require symfony/intl".');
+            @trigger_error(sprintf('Using the "%s" constraint without the "symfony/intl" component installed is deprecated since Symfony 4.2.', __CLASS__), E_USER_DEPRECATED);
         }
 
         if (isset($options['iban']) && isset($options['ibanPropertyPath'])) {

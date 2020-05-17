@@ -19,21 +19,35 @@ use Twig\TwigFunction;
  * ExpressionExtension gives a way to create Expressions from a template.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class ExpressionExtension extends AbstractExtension
+class ExpressionExtension extends AbstractExtension
 {
     /**
      * {@inheritdoc}
+     *
+     * @return TwigFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return [
             new TwigFunction('expression', [$this, 'createExpression']),
         ];
     }
 
-    public function createExpression(string $expression): Expression
+    public function createExpression($expression)
     {
         return new Expression($expression);
+    }
+
+    /**
+     * Returns the name of the extension.
+     *
+     * @return string The extension name
+     */
+    public function getName()
+    {
+        return 'expression';
     }
 }

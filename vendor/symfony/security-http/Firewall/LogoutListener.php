@@ -28,10 +28,12 @@ use Symfony\Component\Security\Http\ParameterBagUtils;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
- * @final
+ * @final since Symfony 4.3
  */
-class LogoutListener extends AbstractListener
+class LogoutListener extends AbstractListener implements ListenerInterface
 {
+    use LegacyListenerTrait;
+
     private $tokenStorage;
     private $options;
     private $handlers;
@@ -113,8 +115,10 @@ class LogoutListener extends AbstractListener
      * The default implementation only processed requests to a specific path,
      * but a subclass could change this to logout requests where
      * certain parameters is present.
+     *
+     * @return bool
      */
-    protected function requiresLogout(Request $request): bool
+    protected function requiresLogout(Request $request)
     {
         return isset($this->options['logout_path']) && $this->httpUtils->checkRequestPath($request, $this->options['logout_path']);
     }

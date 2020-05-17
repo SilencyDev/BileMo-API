@@ -18,8 +18,10 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
  * This event is dispatched on authentication failure.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * @final since Symfony 4.4
  */
-final class AuthenticationFailureEvent extends AuthenticationEvent
+class AuthenticationFailureEvent extends AuthenticationEvent
 {
     private $authenticationException;
 
@@ -30,7 +32,7 @@ final class AuthenticationFailureEvent extends AuthenticationEvent
         $this->authenticationException = $ex;
     }
 
-    public function getAuthenticationException(): AuthenticationException
+    public function getAuthenticationException()
     {
         return $this->authenticationException;
     }

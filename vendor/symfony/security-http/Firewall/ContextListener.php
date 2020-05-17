@@ -12,11 +12,12 @@
 namespace Symfony\Component\Security\Http\Firewall;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\AuthenticationTrustResolver;
 use Symfony\Component\Security\Core\Authentication\AuthenticationTrustResolverInterface;
@@ -27,11 +28,11 @@ use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Role\SwitchUserRole;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Event\DeauthenticatedEvent;
 use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * ContextListener manages the SecurityContext persistence through a session.
@@ -39,10 +40,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  *
- * @final
+ * @final since Symfony 4.3
  */
-class ContextListener extends AbstractListener
+class ContextListener extends AbstractListener implements ListenerInterface
 {
+    use LegacyListenerTrait;
+
     private $tokenStorage;
     private $sessionKey;
     private $logger;
@@ -78,6 +81,18 @@ class ContextListener extends AbstractListener
     }
 
     /**
+     * Enables deauthentication during refreshUser when the user has changed.
+     *
+     * @param bool $logoutOnUserChange
+     *
+     * @deprecated since Symfony 4.1
+     */
+    public function setLogoutOnUserChange($logoutOnUserChange)
+    {
+        @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.1.', __METHOD__), E_USER_DEPRECATED);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function supports(Request $request): ?bool
@@ -99,7 +114,7 @@ class ContextListener extends AbstractListener
         $session = $request->hasPreviousSession() && $request->hasSession() ? $request->getSession() : null;
 
         if (null !== $session) {
-            $usageIndexValue = $session instanceof Session ? $usageIndexReference = &$session->getUsageIndex() : 0;
+            $usageIndexValue = method_exists(Request::class, 'getPreferredFormat') && $session instanceof Session ? $usageIndexReference = &$session->getUsageIndex() : 0;
             $sessionId = $request->cookies->get($session->getName());
             $token = $session->get($this->sessionKey);
 
@@ -151,7 +166,7 @@ class ContextListener extends AbstractListener
     /**
      * Writes the security token into the session.
      */
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(FilterResponseEvent $event)
     {
         if (!$event->isMasterRequest()) {
             return;
@@ -167,7 +182,7 @@ class ContextListener extends AbstractListener
         $this->registered = false;
         $session = $request->getSession();
         $sessionId = $session->getId();
-        $usageIndexValue = $session instanceof Session ? $usageIndexReference = &$session->getUsageIndex() : null;
+        $usageIndexValue = method_exists(Request::class, 'getPreferredFormat') && $session instanceof Session ? $usageIndexReference = &$session->getUsageIndex() : null;
         $token = $this->tokenStorage->getToken();
 
         if (null === $token || $this->trustResolver->isAnonymous($token)) {
@@ -190,9 +205,11 @@ class ContextListener extends AbstractListener
     /**
      * Refreshes the user by reloading it from the user provider.
      *
+     * @return TokenInterface|null
+     *
      * @throws \RuntimeException
      */
-    protected function refreshUser(TokenInterface $token): ?TokenInterface
+    protected function refreshUser(TokenInterface $token)
     {
         $user = $token->getUser();
         if (!$user instanceof UserInterface) {
@@ -235,6 +252,13 @@ class ContextListener extends AbstractListener
 
                     if ($token instanceof SwitchUserToken) {
                         $context['impersonator_username'] = $token->getOriginalToken()->getUsername();
+                    } else {
+                        foreach ($token->getRoles(false) as $role) {
+                            if ($role instanceof SwitchUserRole) {
+                                $context['impersonator_username'] = $role->getSource(false)->getUsername();
+                                break;
+                            }
+                        }
                     }
 
                     $this->logger->debug('User was reloaded from a user provider.', $context);

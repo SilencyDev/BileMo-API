@@ -11,6 +11,8 @@
 
 namespace Symfony\Component\Security\Core\User;
 
+use Symfony\Component\Security\Core\Role\Role;
+
 /**
  * Represents the interface that all user classes must implement.
  *
@@ -42,7 +44,7 @@ interface UserInterface
      * and populated in any number of different ways when the user object
      * is created.
      *
-     * @return string[] The user roles
+     * @return (Role|string)[] The user roles
      */
     public function getRoles();
 

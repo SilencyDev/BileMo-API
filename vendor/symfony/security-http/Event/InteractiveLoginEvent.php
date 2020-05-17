@@ -11,14 +11,16 @@
 
 namespace Symfony\Component\Security\Http\Event;
 
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class InteractiveLoginEvent extends Event
+class InteractiveLoginEvent extends Event
 {
     private $request;
     private $authenticationToken;
@@ -29,12 +31,22 @@ final class InteractiveLoginEvent extends Event
         $this->authenticationToken = $authenticationToken;
     }
 
-    public function getRequest(): Request
+    /**
+     * Gets the request.
+     *
+     * @return Request A Request instance
+     */
+    public function getRequest()
     {
         return $this->request;
     }
 
-    public function getAuthenticationToken(): TokenInterface
+    /**
+     * Gets the authentication token.
+     *
+     * @return TokenInterface A TokenInterface instance
+     */
+    public function getAuthenticationToken()
     {
         return $this->authenticationToken;
     }

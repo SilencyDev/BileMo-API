@@ -21,10 +21,15 @@ use Twig\Node\Expression\FunctionExpression;
  * is "foo", the block "foo" will be rendered.
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
+ *
+ * @final since Symfony 4.4
  */
-final class RenderBlockNode extends FunctionExpression
+class RenderBlockNode extends FunctionExpression
 {
-    public function compile(Compiler $compiler): void
+    /**
+     * @return void
+     */
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
         $arguments = iterator_to_array($this->getNode('arguments'));

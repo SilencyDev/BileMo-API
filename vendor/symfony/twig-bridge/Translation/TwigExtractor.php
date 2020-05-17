@@ -65,12 +65,12 @@ class TwigExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * {@inheritdoc}
      */
-    public function setPrefix(string $prefix)
+    public function setPrefix($prefix)
     {
         $this->prefix = $prefix;
     }
 
-    protected function extractTemplate(string $template, MessageCatalogue $catalogue)
+    protected function extractTemplate($template, MessageCatalogue $catalogue)
     {
         $visitor = $this->twig->getExtension('Symfony\Bridge\Twig\Extension\TranslationExtension')->getTranslationNodeVisitor();
         $visitor->enable();
@@ -85,9 +85,11 @@ class TwigExtractor extends AbstractFileExtractor implements ExtractorInterface
     }
 
     /**
+     * @param string $file
+     *
      * @return bool
      */
-    protected function canBeExtracted(string $file)
+    protected function canBeExtracted($file)
     {
         return $this->isFile($file) && 'twig' === pathinfo($file, PATHINFO_EXTENSION);
     }

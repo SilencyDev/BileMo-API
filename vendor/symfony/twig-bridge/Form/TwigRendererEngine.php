@@ -40,7 +40,7 @@ class TwigRendererEngine extends AbstractRendererEngine
     /**
      * {@inheritdoc}
      */
-    public function renderBlock(FormView $view, $resource, string $blockName, array $variables = [])
+    public function renderBlock(FormView $view, $resource, $blockName, array $variables = [])
     {
         $cacheKey = $view->vars[self::CACHE_KEY_VAR];
 
@@ -70,9 +70,13 @@ class TwigRendererEngine extends AbstractRendererEngine
      *
      * @see getResourceForBlock()
      *
+     * @param string   $cacheKey  The cache key of the form view
+     * @param FormView $view      The form view for finding the applying themes
+     * @param string   $blockName The name of the block to load
+     *
      * @return bool True if the resource could be loaded, false otherwise
      */
-    protected function loadResourceForBlockName(string $cacheKey, FormView $view, string $blockName)
+    protected function loadResourceForBlockName($cacheKey, FormView $view, $blockName)
     {
         // The caller guarantees that $this->resources[$cacheKey][$block] is
         // not set, but it doesn't have to check whether $this->resources[$cacheKey]
@@ -139,13 +143,14 @@ class TwigRendererEngine extends AbstractRendererEngine
     /**
      * Loads the resources for all blocks in a theme.
      *
-     * @param mixed $theme The theme to load the block from. This parameter
-     *                     is passed by reference, because it might be necessary
-     *                     to initialize the theme first. Any changes made to
-     *                     this variable will be kept and be available upon
-     *                     further calls to this method using the same theme.
+     * @param string $cacheKey The cache key for storing the resource
+     * @param mixed  $theme    The theme to load the block from. This parameter
+     *                         is passed by reference, because it might be necessary
+     *                         to initialize the theme first. Any changes made to
+     *                         this variable will be kept and be available upon
+     *                         further calls to this method using the same theme.
      */
-    protected function loadResourcesFromTheme(string $cacheKey, &$theme)
+    protected function loadResourcesFromTheme($cacheKey, &$theme)
     {
         if (!$theme instanceof Template) {
             /* @var Template $theme */

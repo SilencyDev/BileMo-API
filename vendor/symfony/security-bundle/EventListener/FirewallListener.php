@@ -12,13 +12,13 @@
 namespace Symfony\Bundle\SecurityBundle\EventListener;
 
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Http\Firewall;
 use Symfony\Component\Security\Http\FirewallMapInterface;
 use Symfony\Component\Security\Http\Logout\LogoutUrlGenerator;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @author Maxime Steinhausser <maxime.steinhausser@gmail.com>
@@ -30,13 +30,18 @@ class FirewallListener extends Firewall
 
     public function __construct(FirewallMapInterface $map, EventDispatcherInterface $dispatcher, LogoutUrlGenerator $logoutUrlGenerator)
     {
+        // the type-hint will be updated to the "EventDispatcherInterface" from symfony/contracts in 5.0
+
         $this->map = $map;
         $this->logoutUrlGenerator = $logoutUrlGenerator;
 
         parent::__construct($map, $dispatcher);
     }
 
-    public function configureLogoutUrlGenerator(RequestEvent $event)
+    /**
+     * @internal
+     */
+    public function configureLogoutUrlGenerator(GetResponseEvent $event)
     {
         if (!$event->isMasterRequest()) {
             return;
@@ -47,6 +52,9 @@ class FirewallListener extends Firewall
         }
     }
 
+    /**
+     * @internal since Symfony 4.3
+     */
     public function onKernelFinishRequest(FinishRequestEvent $event)
     {
         if ($event->isMasterRequest()) {

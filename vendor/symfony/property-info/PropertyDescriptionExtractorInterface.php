@@ -21,14 +21,20 @@ interface PropertyDescriptionExtractorInterface
     /**
      * Gets the short description of the property.
      *
+     * @param string $class
+     * @param string $property
+     *
      * @return string|null
      */
-    public function getShortDescription(string $class, string $property, array $context = []);
+    public function getShortDescription($class, $property, array $context = []);
 
     /**
      * Gets the long description of the property.
      *
+     * @param string $class
+     * @param string $property
+     *
      * @return string|null
      */
-    public function getLongDescription(string $class, string $property, array $context = []);
+    public function getLongDescription($class, $property, array $context = []);
 }

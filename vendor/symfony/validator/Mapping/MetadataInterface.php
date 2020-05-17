@@ -62,5 +62,5 @@ interface MetadataInterface
      *
      * @return Constraint[] A list of constraint instances
      */
-    public function findConstraints(string $group);
+    public function findConstraints($group);
 }

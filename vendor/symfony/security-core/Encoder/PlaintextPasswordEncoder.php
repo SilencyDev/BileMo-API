@@ -35,7 +35,7 @@ class PlaintextPasswordEncoder extends BasePasswordEncoder
     /**
      * {@inheritdoc}
      */
-    public function encodePassword(string $raw, ?string $salt)
+    public function encodePassword($raw, $salt)
     {
         if ($this->isPasswordTooLong($raw)) {
             throw new BadCredentialsException('Invalid password.');
@@ -47,7 +47,7 @@ class PlaintextPasswordEncoder extends BasePasswordEncoder
     /**
      * {@inheritdoc}
      */
-    public function isPasswordValid(string $encoded, string $raw, ?string $salt)
+    public function isPasswordValid($encoded, $raw, $salt)
     {
         if ($this->isPasswordTooLong($raw)) {
             return false;

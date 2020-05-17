@@ -163,11 +163,12 @@ abstract class Constraint
      * this method will be called at most once per constraint instance and
      * option name.
      *
-     * @param mixed $value The value to set
+     * @param string $option The option name
+     * @param mixed  $value  The value to set
      *
      * @throws InvalidOptionsException If an invalid option name is given
      */
-    public function __set(string $option, $value)
+    public function __set($option, $value)
     {
         if ('groups' === $option) {
             $this->groups = (array) $value;
@@ -193,7 +194,7 @@ abstract class Constraint
      *
      * @internal this method should not be used or overwritten in userland code
      */
-    public function __get(string $option)
+    public function __get($option)
     {
         if ('groups' === $option) {
             $this->groups = [self::DEFAULT_GROUP];
@@ -209,7 +210,7 @@ abstract class Constraint
      *
      * @return bool
      */
-    public function __isset(string $option)
+    public function __isset($option)
     {
         return 'groups' === $option;
     }

@@ -84,9 +84,11 @@ class IdReader
      *
      * This method assumes that the object has a single-column ID.
      *
+     * @param object $object The object
+     *
      * @return mixed The ID value
      */
-    public function getIdValue(object $object = null)
+    public function getIdValue($object)
     {
         if (!$object) {
             return null;

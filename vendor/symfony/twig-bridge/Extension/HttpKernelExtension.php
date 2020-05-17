@@ -19,13 +19,15 @@ use Twig\TwigFunction;
  * Provides integration with the HttpKernel component.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class HttpKernelExtension extends AbstractExtension
+class HttpKernelExtension extends AbstractExtension
 {
     /**
-     * {@inheritdoc}
+     * @return TwigFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return [
             new TwigFunction('render', [HttpKernelRuntime::class, 'renderFragment'], ['is_safe' => ['html']]),
@@ -34,8 +36,16 @@ final class HttpKernelExtension extends AbstractExtension
         ];
     }
 
-    public static function controller(string $controller, array $attributes = [], array $query = []): ControllerReference
+    public static function controller($controller, $attributes = [], $query = [])
     {
         return new ControllerReference($controller, $attributes, $query);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'http_kernel';
     }
 }

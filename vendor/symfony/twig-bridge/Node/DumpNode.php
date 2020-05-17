@@ -16,12 +16,14 @@ use Twig\Node\Node;
 
 /**
  * @author Julien Galenski <julien.galenski@gmail.com>
+ *
+ * @final since Symfony 4.4
  */
-final class DumpNode extends Node
+class DumpNode extends Node
 {
     private $varPrefix;
 
-    public function __construct($varPrefix, ?Node $values, int $lineno, string $tag = null)
+    public function __construct($varPrefix, Node $values = null, int $lineno, string $tag = null)
     {
         $nodes = [];
         if (null !== $values) {
@@ -32,7 +34,10 @@ final class DumpNode extends Node
         $this->varPrefix = $varPrefix;
     }
 
-    public function compile(Compiler $compiler): void
+    /**
+     * @return void
+     */
+    public function compile(Compiler $compiler)
     {
         $compiler
             ->write("if (\$this->env->isDebug()) {\n")
