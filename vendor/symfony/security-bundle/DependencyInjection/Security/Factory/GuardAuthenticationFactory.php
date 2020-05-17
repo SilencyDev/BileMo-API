@@ -55,7 +55,7 @@ class GuardAuthenticationFactory implements SecurityFactoryInterface
         ;
     }
 
-    public function create(ContainerBuilder $container, string $id, array $config, string $userProvider, ?string $defaultEntryPoint)
+    public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
     {
         $authenticatorIds = $config['authenticators'];
         $authenticatorReferences = [];

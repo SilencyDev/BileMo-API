@@ -24,13 +24,17 @@ use Twig\TokenParser\AbstractTokenParser;
  * Token Parser for the 'trans' tag.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class TransTokenParser extends AbstractTokenParser
+class TransTokenParser extends AbstractTokenParser
 {
     /**
      * {@inheritdoc}
+     *
+     * @return Node
      */
-    public function parse(Token $token): Node
+    public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -80,15 +84,17 @@ final class TransTokenParser extends AbstractTokenParser
         return new TransNode($body, $domain, $count, $vars, $locale, $lineno, $this->getTag());
     }
 
-    public function decideTransFork(Token $token): bool
+    public function decideTransFork($token)
     {
         return $token->test(['endtrans']);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
-    public function getTag(): string
+    public function getTag()
     {
         return 'trans';
     }

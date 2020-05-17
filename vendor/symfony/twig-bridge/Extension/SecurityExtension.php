@@ -21,8 +21,10 @@ use Twig\TwigFunction;
  * SecurityExtension exposes security context features.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class SecurityExtension extends AbstractExtension
+class SecurityExtension extends AbstractExtension
 {
     private $securityChecker;
 
@@ -31,10 +33,7 @@ final class SecurityExtension extends AbstractExtension
         $this->securityChecker = $securityChecker;
     }
 
-    /**
-     * @param mixed $object
-     */
-    public function isGranted($role, $object = null, string $field = null): bool
+    public function isGranted($role, $object = null, $field = null)
     {
         if (null === $this->securityChecker) {
             return false;
@@ -53,11 +52,21 @@ final class SecurityExtension extends AbstractExtension
 
     /**
      * {@inheritdoc}
+     *
+     * @return TwigFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return [
             new TwigFunction('is_granted', [$this, 'isGranted']),
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'security';
     }
 }

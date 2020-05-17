@@ -25,9 +25,11 @@ abstract class AbstractGuardAuthenticator implements AuthenticatorInterface
      * Shortcut to create a PostAuthenticationGuardToken for you, if you don't really
      * care about which authenticated token you're using.
      *
+     * @param string $providerKey
+     *
      * @return PostAuthenticationGuardToken
      */
-    public function createAuthenticatedToken(UserInterface $user, string $providerKey)
+    public function createAuthenticatedToken(UserInterface $user, $providerKey)
     {
         return new PostAuthenticationGuardToken(
             $user,

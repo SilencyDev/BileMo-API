@@ -17,14 +17,17 @@ use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\Template;
+use Twig\TokenParser\TokenParserInterface;
 use Twig\TwigFunction;
 
 /**
  * Provides integration of the dump() function with Twig.
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ *
+ * @final since Symfony 4.4
  */
-final class DumpExtension extends AbstractExtension
+class DumpExtension extends AbstractExtension
 {
     private $cloner;
     private $dumper;
@@ -36,9 +39,9 @@ final class DumpExtension extends AbstractExtension
     }
 
     /**
-     * {@inheritdoc}
+     * @return TwigFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return [
             new TwigFunction('dump', [$this, 'dump'], ['is_safe' => ['html'], 'needs_context' => true, 'needs_environment' => true]),
@@ -46,14 +49,19 @@ final class DumpExtension extends AbstractExtension
     }
 
     /**
-     * {@inheritdoc}
+     * @return TokenParserInterface[]
      */
-    public function getTokenParsers(): array
+    public function getTokenParsers()
     {
         return [new DumpTokenParser()];
     }
 
-    public function dump(Environment $env, array $context): ?string
+    public function getName()
+    {
+        return 'dump';
+    }
+
+    public function dump(Environment $env, $context)
     {
         if (!$env->isDebug()) {
             return null;

@@ -52,6 +52,9 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
     const REMOVE_EMPTY_TAGS = 'remove_empty_tags';
     const ROOT_NODE_NAME = 'xml_root_node_name';
     const STANDALONE = 'xml_standalone';
+
+    /** @deprecated The constant TYPE_CASE_ATTRIBUTES is deprecated since version 4.4 and will be removed in version 5. Use TYPE_CAST_ATTRIBUTES instead. */
+    const TYPE_CASE_ATTRIBUTES = 'xml_type_cast_attributes';
     const TYPE_CAST_ATTRIBUTES = 'xml_type_cast_attributes';
     const VERSION = 'xml_version';
 
@@ -72,15 +75,29 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
     private $format;
     private $context;
 
-    public function __construct(array $defaultContext = [])
+    /**
+     * @param array $defaultContext
+     */
+    public function __construct($defaultContext = [], int $loadOptions = null, array $decoderIgnoredNodeTypes = [XML_PI_NODE, XML_COMMENT_NODE], array $encoderIgnoredNodeTypes = [])
     {
+        if (!\is_array($defaultContext)) {
+            @trigger_error('Passing configuration options directly to the constructor is deprecated since Symfony 4.2, use the default context instead.', E_USER_DEPRECATED);
+
+            $defaultContext = [
+                self::DECODER_IGNORED_NODE_TYPES => $decoderIgnoredNodeTypes,
+                self::ENCODER_IGNORED_NODE_TYPES => $encoderIgnoredNodeTypes,
+                self::LOAD_OPTIONS => $loadOptions ?? LIBXML_NONET | LIBXML_NOBLANKS,
+                self::ROOT_NODE_NAME => (string) $defaultContext,
+            ];
+        }
+
         $this->defaultContext = array_merge($this->defaultContext, $defaultContext);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function encode($data, string $format, array $context = [])
+    public function encode($data, $format, array $context = [])
     {
         $encoderIgnoredNodeTypes = $context[self::ENCODER_IGNORED_NODE_TYPES] ?? $this->defaultContext[self::ENCODER_IGNORED_NODE_TYPES];
         $ignorePiNode = \in_array(XML_PI_NODE, $encoderIgnoredNodeTypes, true);
@@ -108,7 +125,7 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
     /**
      * {@inheritdoc}
      */
-    public function decode(string $data, string $format, array $context = [])
+    public function decode($data, $format, array $context = [])
     {
         if ('' === trim($data)) {
             throw new NotEncodableValueException('Invalid XML data, it can not be empty.');
@@ -177,7 +194,7 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
     /**
      * {@inheritdoc}
      */
-    public function supportsEncoding(string $format)
+    public function supportsEncoding($format)
     {
         return self::FORMAT === $format;
     }
@@ -185,9 +202,37 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
     /**
      * {@inheritdoc}
      */
-    public function supportsDecoding(string $format)
+    public function supportsDecoding($format)
     {
         return self::FORMAT === $format;
+    }
+
+    /**
+     * Sets the root node name.
+     *
+     * @deprecated since Symfony 4.2
+     *
+     * @param string $name Root node name
+     */
+    public function setRootNodeName($name)
+    {
+        @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.2, use the context instead.', __METHOD__), E_USER_DEPRECATED);
+
+        $this->defaultContext[self::ROOT_NODE_NAME] = $name;
+    }
+
+    /**
+     * Returns the root node name.
+     *
+     * @deprecated since Symfony 4.2
+     *
+     * @return string
+     */
+    public function getRootNodeName()
+    {
+        @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.2, use the context instead.', __METHOD__), E_USER_DEPRECATED);
+
+        return $this->defaultContext[self::ROOT_NODE_NAME];
     }
 
     final protected function appendXMLString(\DOMNode $node, string $val): bool

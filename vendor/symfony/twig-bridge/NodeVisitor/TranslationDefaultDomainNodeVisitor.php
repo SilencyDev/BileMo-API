@@ -27,8 +27,10 @@ use Twig\NodeVisitor\AbstractNodeVisitor;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class TranslationDefaultDomainNodeVisitor extends AbstractNodeVisitor
+class TranslationDefaultDomainNodeVisitor extends AbstractNodeVisitor
 {
     private $scope;
 
@@ -39,8 +41,10 @@ final class TranslationDefaultDomainNodeVisitor extends AbstractNodeVisitor
 
     /**
      * {@inheritdoc}
+     *
+     * @return Node
      */
-    protected function doEnterNode(Node $node, Environment $env): Node
+    protected function doEnterNode(Node $node, Environment $env)
     {
         if ($node instanceof BlockNode || $node instanceof ModuleNode) {
             $this->scope = $this->scope->enter();
@@ -91,8 +95,10 @@ final class TranslationDefaultDomainNodeVisitor extends AbstractNodeVisitor
 
     /**
      * {@inheritdoc}
+     *
+     * @return Node|null
      */
-    protected function doLeaveNode(Node $node, Environment $env): ?Node
+    protected function doLeaveNode(Node $node, Environment $env)
     {
         if ($node instanceof TransDefaultDomainNode) {
             return null;
@@ -107,8 +113,10 @@ final class TranslationDefaultDomainNodeVisitor extends AbstractNodeVisitor
 
     /**
      * {@inheritdoc}
+     *
+     * @return int
      */
-    public function getPriority(): int
+    public function getPriority()
     {
         return -10;
     }

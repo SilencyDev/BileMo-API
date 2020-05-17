@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Security\Core\Authentication\Token;
 
+use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -18,6 +19,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ *
+ * @method array    __serialize()                                                                             Returns all the necessary state of the object for serialization purposes - not implementing it is deprecated since Symfony 4.3
+ * @method void     __unserialize(array $data) Restores the object state from an array given by __serialize() - not implementing it is deprecated since Symfony 4.3
+ * @method string[] getRoleNames()                                                                            The associated roles - not implementing it is deprecated since Symfony 4.3
  */
 interface TokenInterface extends \Serializable
 {
@@ -33,9 +38,11 @@ interface TokenInterface extends \Serializable
     /**
      * Returns the user roles.
      *
-     * @return string[] The associated roles
+     * @return Role[] An array of Role instances
+     *
+     * @deprecated since Symfony 4.3, use the getRoleNames() method instead
      */
-    public function getRoleNames(): array;
+    public function getRoles();
 
     /**
      * Returns the user credentials.
@@ -81,8 +88,10 @@ interface TokenInterface extends \Serializable
 
     /**
      * Sets the authenticated flag.
+     *
+     * @param bool $isAuthenticated The authenticated flag
      */
-    public function setAuthenticated(bool $isAuthenticated);
+    public function setAuthenticated($isAuthenticated);
 
     /**
      * Removes sensitive information from the token.
@@ -106,33 +115,28 @@ interface TokenInterface extends \Serializable
     /**
      * Returns true if the attribute exists.
      *
+     * @param string $name The attribute name
+     *
      * @return bool true if the attribute exists, false otherwise
      */
-    public function hasAttribute(string $name);
+    public function hasAttribute($name);
 
     /**
      * Returns an attribute value.
+     *
+     * @param string $name The attribute name
      *
      * @return mixed The attribute value
      *
      * @throws \InvalidArgumentException When attribute doesn't exist for this token
      */
-    public function getAttribute(string $name);
+    public function getAttribute($name);
 
     /**
      * Sets an attribute.
      *
-     * @param mixed $value The attribute value
+     * @param string $name  The attribute name
+     * @param mixed  $value The attribute value
      */
-    public function setAttribute(string $name, $value);
-
-    /**
-     * Returns all the necessary state of the object for serialization purposes.
-     */
-    public function __serialize(): array;
-
-    /**
-     * Restores the object state from an array given by __serialize().
-     */
-    public function __unserialize(array $data): void;
+    public function setAttribute($name, $value);
 }

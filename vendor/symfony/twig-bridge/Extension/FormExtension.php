@@ -15,6 +15,7 @@ use Symfony\Bridge\Twig\TokenParser\FormThemeTokenParser;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormView;
 use Twig\Extension\AbstractExtension;
+use Twig\TokenParser\TokenParserInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
@@ -24,13 +25,17 @@ use Twig\TwigTest;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Bernhard Schussek <bschussek@gmail.com>
+ *
+ * @final since Symfony 4.4
  */
-final class FormExtension extends AbstractExtension
+class FormExtension extends AbstractExtension
 {
     /**
      * {@inheritdoc}
+     *
+     * @return TokenParserInterface[]
      */
-    public function getTokenParsers(): array
+    public function getTokenParsers()
     {
         return [
             // {% form_theme form "SomeBundle::widgets.twig" %}
@@ -40,8 +45,10 @@ final class FormExtension extends AbstractExtension
 
     /**
      * {@inheritdoc}
+     *
+     * @return TwigFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return [
             new TwigFunction('form_widget', null, ['node_class' => 'Symfony\Bridge\Twig\Node\SearchAndRenderBlockNode', 'is_safe' => ['html']]),
@@ -60,8 +67,10 @@ final class FormExtension extends AbstractExtension
 
     /**
      * {@inheritdoc}
+     *
+     * @return TwigFilter[]
      */
-    public function getFilters(): array
+    public function getFilters()
     {
         return [
             new TwigFilter('humanize', ['Symfony\Component\Form\FormRenderer', 'humanize']),
@@ -71,13 +80,23 @@ final class FormExtension extends AbstractExtension
 
     /**
      * {@inheritdoc}
+     *
+     * @return TwigTest[]
      */
-    public function getTests(): array
+    public function getTests()
     {
         return [
             new TwigTest('selectedchoice', 'Symfony\Bridge\Twig\Extension\twig_is_selected_choice'),
             new TwigTest('rootform', 'Symfony\Bridge\Twig\Extension\twig_is_root_form'),
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'form';
     }
 }
 
@@ -87,6 +106,8 @@ final class FormExtension extends AbstractExtension
  * This is a function and not callable due to performance reasons.
  *
  * @param string|array $selectedValue The selected value to compare
+ *
+ * @return bool Whether the choice is selected
  *
  * @see ChoiceView::isSelected()
  */

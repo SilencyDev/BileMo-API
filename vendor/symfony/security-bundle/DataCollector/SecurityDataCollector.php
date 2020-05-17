@@ -23,7 +23,9 @@ use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Authorization\TraceableAccessDecisionManager;
 use Symfony\Component\Security\Core\Authorization\Voter\TraceableVoter;
+use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use Symfony\Component\Security\Core\Role\SwitchUserRole;
 use Symfony\Component\Security\Http\Firewall\SwitchUserListener;
 use Symfony\Component\Security\Http\FirewallMapInterface;
 use Symfony\Component\Security\Http\Logout\LogoutUrlGenerator;
@@ -33,7 +35,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  *
- * @final
+ * @final since Symfony 4.4
  */
 class SecurityDataCollector extends DataCollector implements LateDataCollectorInterface
 {
@@ -58,8 +60,10 @@ class SecurityDataCollector extends DataCollector implements LateDataCollectorIn
 
     /**
      * {@inheritdoc}
+     *
+     * @param \Throwable|null $exception
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response/*, \Throwable $exception = null*/)
     {
         if (null === $this->tokenStorage) {
             $this->data = [
@@ -93,15 +97,33 @@ class SecurityDataCollector extends DataCollector implements LateDataCollectorIn
             ];
         } else {
             $inheritedRoles = [];
-            $assignedRoles = $token->getRoleNames();
+
+            if (method_exists($token, 'getRoleNames')) {
+                $assignedRoles = $token->getRoleNames();
+            } else {
+                $assignedRoles = array_map(function (Role $role) { return $role->getRole(); }, $token->getRoles(false));
+            }
 
             $impersonatorUser = null;
             if ($token instanceof SwitchUserToken) {
                 $impersonatorUser = $token->getOriginalToken()->getUsername();
+            } else {
+                foreach ($token->getRoles(false) as $role) {
+                    if ($role instanceof SwitchUserRole) {
+                        $impersonatorUser = $role->getSource()->getUsername();
+                        break;
+                    }
+                }
             }
 
             if (null !== $this->roleHierarchy) {
-                foreach ($this->roleHierarchy->getReachableRoleNames($assignedRoles) as $role) {
+                if (method_exists($this->roleHierarchy, 'getReachableRoleNames')) {
+                    $allRoles = $this->roleHierarchy->getReachableRoleNames($assignedRoles);
+                } else {
+                    $allRoles = array_map(function (Role $role) { return (string) $role; }, $this->roleHierarchy->getReachableRoles($token->getRoles(false)));
+                }
+
+                foreach ($allRoles as $role) {
                     if (!\in_array($role, $assignedRoles, true)) {
                         $inheritedRoles[] = $role;
                     }

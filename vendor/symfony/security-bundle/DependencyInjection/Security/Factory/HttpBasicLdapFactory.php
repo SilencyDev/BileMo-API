@@ -15,7 +15,6 @@ use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\Security\Core\Exception\LogicException;
 
 /**
  * HttpBasicFactory creates services for HTTP basic authentication.
@@ -26,7 +25,7 @@ use Symfony\Component\Security\Core\Exception\LogicException;
  */
 class HttpBasicLdapFactory extends HttpBasicFactory
 {
-    public function create(ContainerBuilder $container, string $id, array $config, string $userProvider, ?string $defaultEntryPoint)
+    public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
     {
         $provider = 'security.authentication.provider.ldap_bind.'.$id;
         $definition = $container
@@ -45,7 +44,7 @@ class HttpBasicLdapFactory extends HttpBasicFactory
 
         if (!empty($config['query_string'])) {
             if ('' === $config['search_dn'] || '' === $config['search_password']) {
-                throw new LogicException('Using the "query_string" config without using a "search_dn" and a "search_password" is not supported.');
+                @trigger_error('Using the "query_string" config without using a "search_dn" and a "search_password" is deprecated since Symfony 4.4 and will throw an exception in Symfony 5.0.', E_USER_DEPRECATED);
             }
             $definition->addMethodCall('setQueryString', [$config['query_string']]);
         }

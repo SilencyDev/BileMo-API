@@ -27,10 +27,12 @@ use Symfony\Component\Security\Http\Event\LazyResponseEvent;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
- * @final
+ * @final since Symfony 4.3
  */
-class AccessListener extends AbstractListener
+class AccessListener extends AbstractListener implements ListenerInterface
 {
+    use LegacyListenerTrait;
+
     private $tokenStorage;
     private $accessDecisionManager;
     private $map;

@@ -730,7 +730,7 @@ class Inline
         return base64_decode($parsedBinaryData, true);
     }
 
-    private static function isBinaryString(string $value): bool
+    private static function isBinaryString(string $value)
     {
         return !preg_match('//u', $value) || preg_match('/[^\x00\x07-\x0d\x1B\x20-\xff]/', $value);
     }

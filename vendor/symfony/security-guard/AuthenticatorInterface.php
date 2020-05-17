@@ -105,9 +105,11 @@ interface AuthenticatorInterface extends AuthenticationEntryPointInterface
      *
      * @see AbstractGuardAuthenticator
      *
+     * @param string $providerKey The provider (i.e. firewall) key
+     *
      * @return GuardTokenInterface
      */
-    public function createAuthenticatedToken(UserInterface $user, string $providerKey);
+    public function createAuthenticatedToken(UserInterface $user, $providerKey);
 
     /**
      * Called when authentication executed, but failed (e.g. wrong username password).
@@ -131,9 +133,11 @@ interface AuthenticatorInterface extends AuthenticationEntryPointInterface
      * If you return null, the current request will continue, and the user
      * will be authenticated. This makes sense, for example, with an API.
      *
+     * @param string $providerKey The provider (i.e. firewall) key
+     *
      * @return Response|null
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey);
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey);
 
     /**
      * Does this method support remember me cookies?

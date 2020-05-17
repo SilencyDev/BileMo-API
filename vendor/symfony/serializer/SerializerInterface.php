@@ -27,14 +27,16 @@ interface SerializerInterface
      *
      * @return string
      */
-    public function serialize($data, string $format, array $context = []);
+    public function serialize($data, $format, array $context = []);
 
     /**
      * Deserializes data into the given type.
      *
-     * @param mixed $data
+     * @param mixed  $data
+     * @param string $type
+     * @param string $format
      *
      * @return object|array
      */
-    public function deserialize($data, string $type, string $format, array $context = []);
+    public function deserialize($data, $type, $format, array $context = []);
 }

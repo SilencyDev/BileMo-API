@@ -15,7 +15,6 @@ use Symfony\Component\Ldap\Exception\ConnectionException;
 use Symfony\Component\Ldap\LdapInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Core\Exception\LogicException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -51,8 +50,10 @@ class LdapBindAuthenticationProvider extends UserAuthenticationProvider
 
     /**
      * Set a query string to use in order to find a DN for the username.
+     *
+     * @param string $queryString
      */
-    public function setQueryString(string $queryString)
+    public function setQueryString($queryString)
     {
         $this->queryString = $queryString;
     }
@@ -60,7 +61,7 @@ class LdapBindAuthenticationProvider extends UserAuthenticationProvider
     /**
      * {@inheritdoc}
      */
-    protected function retrieveUser(string $username, UsernamePasswordToken $token)
+    protected function retrieveUser($username, UsernamePasswordToken $token)
     {
         if (AuthenticationProviderInterface::USERNAME_NONE_PROVIDED === $username) {
             throw new UsernameNotFoundException('Username can not be null.');
@@ -86,7 +87,7 @@ class LdapBindAuthenticationProvider extends UserAuthenticationProvider
                 if ('' !== $this->searchDn && '' !== $this->searchPassword) {
                     $this->ldap->bind($this->searchDn, $this->searchPassword);
                 } else {
-                    throw new LogicException('Using the "query_string" config without using a "search_dn" and a "search_password" is not supported.');
+                    @trigger_error('Using the "query_string" config without using a "search_dn" and a "search_password" is deprecated since Symfony 4.4 and will throw an exception in Symfony 5.0.', E_USER_DEPRECATED);
                 }
                 $username = $this->ldap->escape($username, '', LdapInterface::ESCAPE_FILTER);
                 $query = str_replace('{username}', $username, $this->queryString);

@@ -11,6 +11,7 @@
 
 namespace Symfony\Bundle\TwigBundle;
 
+use Symfony\Bundle\TwigBundle\DependencyInjection\Compiler\ExceptionListenerPass;
 use Symfony\Bundle\TwigBundle\DependencyInjection\Compiler\ExtensionPass;
 use Symfony\Bundle\TwigBundle\DependencyInjection\Compiler\RuntimeLoaderPass;
 use Symfony\Bundle\TwigBundle\DependencyInjection\Compiler\TwigEnvironmentPass;
@@ -49,6 +50,7 @@ class TwigBundle extends Bundle
         $container->addCompilerPass(new ExtensionPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 10);
         $container->addCompilerPass(new TwigEnvironmentPass());
         $container->addCompilerPass(new TwigLoaderPass());
+        $container->addCompilerPass(new ExceptionListenerPass());
         $container->addCompilerPass(new RuntimeLoaderPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 

@@ -241,9 +241,11 @@ abstract class AbstractRememberMeServices implements RememberMeServicesInterface
     /**
      * Decodes the raw cookie value.
      *
+     * @param string $rawCookie
+     *
      * @return array
      */
-    protected function decodeCookie(string $rawCookie)
+    protected function decodeCookie($rawCookie)
     {
         return explode(self::COOKIE_DELIMITER, base64_decode($rawCookie));
     }

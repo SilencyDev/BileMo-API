@@ -46,16 +46,20 @@ class DoctrineDataCollector extends DataCollector
 
     /**
      * Adds the stack logger for a connection.
+     *
+     * @param string $name
      */
-    public function addLogger(string $name, DebugStack $logger)
+    public function addLogger($name, DebugStack $logger)
     {
         $this->loggers[$name] = $logger;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param \Throwable|null $exception
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response/*, \Throwable $exception = null*/)
     {
         $queries = [];
         foreach ($this->loggers as $name => $logger) {

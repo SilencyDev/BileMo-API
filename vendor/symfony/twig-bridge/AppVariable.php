@@ -39,14 +39,14 @@ class AppVariable
         $this->requestStack = $requestStack;
     }
 
-    public function setEnvironment(string $environment)
+    public function setEnvironment($environment)
     {
         $this->environment = $environment;
     }
 
-    public function setDebug(bool $debug)
+    public function setDebug($debug)
     {
-        $this->debug = $debug;
+        $this->debug = (bool) $debug;
     }
 
     /**

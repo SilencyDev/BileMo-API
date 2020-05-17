@@ -47,7 +47,7 @@ abstract class AbstractFactory implements SecurityFactoryInterface
         'failure_path_parameter' => '_failure_path',
     ];
 
-    public function create(ContainerBuilder $container, string $id, array $config, string $userProviderId, ?string $defaultEntryPointId)
+    public function create(ContainerBuilder $container, $id, $config, $userProviderId, $defaultEntryPointId)
     {
         // authentication provider
         $authProviderId = $this->createAuthProvider($container, $id, $config, $userProviderId);
@@ -98,9 +98,13 @@ abstract class AbstractFactory implements SecurityFactoryInterface
      * Subclasses must return the id of a service which implements the
      * AuthenticationProviderInterface.
      *
+     * @param string $id             The unique id of the firewall
+     * @param array  $config         The options array for this listener
+     * @param string $userProviderId The id of the user provider
+     *
      * @return string never null, the id of the authentication provider
      */
-    abstract protected function createAuthProvider(ContainerBuilder $container, string $id, array $config, string $userProviderId);
+    abstract protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId);
 
     /**
      * Subclasses must return the id of the abstract listener template.
@@ -123,9 +127,14 @@ abstract class AbstractFactory implements SecurityFactoryInterface
      * Subclasses may create an entry point of their as they see fit. The
      * default implementation does not change the default entry point.
      *
+     * @param ContainerBuilder $container
+     * @param string           $id
+     * @param array            $config
+     * @param string|null      $defaultEntryPointId
+     *
      * @return string|null the entry point id
      */
-    protected function createEntryPoint(ContainerBuilder $container, string $id, array $config, ?string $defaultEntryPointId)
+    protected function createEntryPoint($container, $id, $config, $defaultEntryPointId)
     {
         return $defaultEntryPointId;
     }
@@ -136,12 +145,12 @@ abstract class AbstractFactory implements SecurityFactoryInterface
      *
      * @return bool Whether a possibly configured RememberMeServices should be set for this listener
      */
-    protected function isRememberMeAware(array $config)
+    protected function isRememberMeAware($config)
     {
         return $config['remember_me'];
     }
 
-    protected function createListener(ContainerBuilder $container, string $id, array $config, string $userProvider)
+    protected function createListener($container, $id, $config, $userProvider)
     {
         $listenerId = $this->getListenerId();
         $listener = new ChildDefinition($listenerId);
@@ -156,7 +165,7 @@ abstract class AbstractFactory implements SecurityFactoryInterface
         return $listenerId;
     }
 
-    protected function createAuthenticationSuccessHandler(ContainerBuilder $container, string $id, array $config)
+    protected function createAuthenticationSuccessHandler($container, $id, $config)
     {
         $successHandlerId = $this->getSuccessHandlerId($id);
         $options = array_intersect_key($config, $this->defaultSuccessHandlerOptions);
@@ -175,7 +184,7 @@ abstract class AbstractFactory implements SecurityFactoryInterface
         return $successHandlerId;
     }
 
-    protected function createAuthenticationFailureHandler(ContainerBuilder $container, string $id, array $config)
+    protected function createAuthenticationFailureHandler($container, $id, $config)
     {
         $id = $this->getFailureHandlerId($id);
         $options = array_intersect_key($config, $this->defaultFailureHandlerOptions);
@@ -192,12 +201,12 @@ abstract class AbstractFactory implements SecurityFactoryInterface
         return $id;
     }
 
-    protected function getSuccessHandlerId(string $id)
+    protected function getSuccessHandlerId($id)
     {
         return 'security.authentication.success_handler.'.$id.'.'.str_replace('-', '_', $this->getKey());
     }
 
-    protected function getFailureHandlerId(string $id)
+    protected function getFailureHandlerId($id)
     {
         return 'security.authentication.failure_handler.'.$id.'.'.str_replace('-', '_', $this->getKey());
     }

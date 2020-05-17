@@ -12,6 +12,8 @@
 namespace Symfony\Component\Serializer\Normalizer;
 
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
+use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface as DeprecatedMimeTypeGuesserInterface;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
 use Symfony\Component\Mime\MimeTypes;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -36,10 +38,22 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
      */
     private $mimeTypeGuesser;
 
-    public function __construct(MimeTypeGuesserInterface $mimeTypeGuesser = null)
+    /**
+     * @param MimeTypeGuesserInterface|null $mimeTypeGuesser
+     */
+    public function __construct($mimeTypeGuesser = null)
     {
-        if (!$mimeTypeGuesser && class_exists(MimeTypes::class)) {
-            $mimeTypeGuesser = MimeTypes::getDefault();
+        if ($mimeTypeGuesser instanceof DeprecatedMimeTypeGuesserInterface) {
+            @trigger_error(sprintf('Passing a %s to "%s()" is deprecated since Symfony 4.3, pass a "%s" instead.', DeprecatedMimeTypeGuesserInterface::class, __METHOD__, MimeTypeGuesserInterface::class), E_USER_DEPRECATED);
+        } elseif (null === $mimeTypeGuesser) {
+            if (class_exists(MimeTypes::class)) {
+                $mimeTypeGuesser = MimeTypes::getDefault();
+            } elseif (class_exists(MimeTypeGuesser::class)) {
+                @trigger_error(sprintf('Passing null to "%s()" to use a default MIME type guesser without Symfony Mime installed is deprecated since Symfony 4.3. Try running "composer require symfony/mime".', __METHOD__), E_USER_DEPRECATED);
+                $mimeTypeGuesser = MimeTypeGuesser::getInstance();
+            }
+        } elseif (!$mimeTypeGuesser instanceof MimeTypes) {
+            throw new \TypeError(sprintf('Argument 1 passed to "%s()" must be an instance of "%s" or null, "%s" given.', __METHOD__, MimeTypes::class, \is_object($mimeTypeGuesser) ? \get_class($mimeTypeGuesser) : \gettype($mimeTypeGuesser)));
         }
 
         $this->mimeTypeGuesser = $mimeTypeGuesser;
@@ -48,7 +62,7 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
     /**
      * {@inheritdoc}
      */
-    public function normalize($object, string $format = null, array $context = [])
+    public function normalize($object, $format = null, array $context = [])
     {
         if (!$object instanceof \SplFileInfo) {
             throw new InvalidArgumentException('The object must be an instance of "\SplFileInfo".');
@@ -74,7 +88,7 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
     /**
      * {@inheritdoc}
      */
-    public function supportsNormalization($data, string $format = null)
+    public function supportsNormalization($data, $format = null)
     {
         return $data instanceof \SplFileInfo;
     }
@@ -89,7 +103,7 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
      * @throws InvalidArgumentException
      * @throws NotNormalizableValueException
      */
-    public function denormalize($data, string $type, string $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = [])
     {
         if (!preg_match('/^data:([a-z0-9][a-z0-9\!\#\$\&\-\^\_\+\.]{0,126}\/[a-z0-9][a-z0-9\!\#\$\&\-\^\_\+\.]{0,126}(;[a-z0-9\-]+\=[a-z0-9\-]+)?)?(;base64)?,[a-z0-9\!\$\&\\\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i', $data)) {
             throw new NotNormalizableValueException('The provided "data:" URI is not valid.');
@@ -98,10 +112,6 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
         try {
             switch ($type) {
                 case 'Symfony\Component\HttpFoundation\File\File':
-                    if (!class_exists(File::class)) {
-                        throw new InvalidArgumentException(sprintf('Cannot denormalize to a "%s" without the HttpFoundation component installed. Try running "composer require symfony/http-foundation".', File::class));
-                    }
-
                     return new File($data, false);
 
                 case 'SplFileObject':
@@ -118,7 +128,7 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
     /**
      * {@inheritdoc}
      */
-    public function supportsDenormalization($data, string $type, string $format = null)
+    public function supportsDenormalization($data, $type, $format = null)
     {
         return isset(self::$supportedTypes[$type]);
     }
@@ -138,6 +148,10 @@ class DataUriNormalizer implements NormalizerInterface, DenormalizerInterface, C
     {
         if ($object instanceof File) {
             return $object->getMimeType();
+        }
+
+        if ($this->mimeTypeGuesser instanceof DeprecatedMimeTypeGuesserInterface && $mimeType = $this->mimeTypeGuesser->guess($object->getPathname())) {
+            return $mimeType;
         }
 
         if ($this->mimeTypeGuesser && $mimeType = $this->mimeTypeGuesser->guessMimeType($object->getPathname())) {

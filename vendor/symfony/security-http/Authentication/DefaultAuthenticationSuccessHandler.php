@@ -81,7 +81,12 @@ class DefaultAuthenticationSuccessHandler implements AuthenticationSuccessHandle
         return $this->providerKey;
     }
 
-    public function setProviderKey(string $providerKey)
+    /**
+     * Set the provider key.
+     *
+     * @param string $providerKey
+     */
+    public function setProviderKey($providerKey)
     {
         $this->providerKey = $providerKey;
     }

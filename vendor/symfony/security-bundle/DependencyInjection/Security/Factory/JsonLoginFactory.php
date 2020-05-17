@@ -49,7 +49,7 @@ class JsonLoginFactory extends AbstractFactory
     /**
      * {@inheritdoc}
      */
-    protected function createAuthProvider(ContainerBuilder $container, string $id, array $config, string $userProviderId)
+    protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
     {
         $provider = 'security.authentication.provider.dao.'.$id;
         $container
@@ -81,7 +81,7 @@ class JsonLoginFactory extends AbstractFactory
     /**
      * {@inheritdoc}
      */
-    protected function createListener(ContainerBuilder $container, string $id, array $config, string $userProvider)
+    protected function createListener($container, $id, $config, $userProvider)
     {
         $listenerId = $this->getListenerId();
         $listener = new ChildDefinition($listenerId);

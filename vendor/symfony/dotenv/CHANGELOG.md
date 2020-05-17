@@ -1,11 +1,6 @@
 CHANGELOG
 =========
 
-5.0.0
------
-
- * using `putenv()` is disabled by default
-
 4.3.0
 -----
 

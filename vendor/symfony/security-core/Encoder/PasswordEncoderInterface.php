@@ -17,18 +17,23 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
  * PasswordEncoderInterface is the interface for all encoders.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @method bool needsRehash(string $encoded)
  */
 interface PasswordEncoderInterface
 {
     /**
      * Encodes the raw password.
      *
+     * @param string      $raw  The password to encode
+     * @param string|null $salt The salt
+     *
      * @return string The encoded password
      *
      * @throws BadCredentialsException   If the raw password is invalid, e.g. excessively long
      * @throws \InvalidArgumentException If the salt is invalid
      */
-    public function encodePassword(string $raw, ?string $salt);
+    public function encodePassword($raw, $salt);
 
     /**
      * Checks a raw password against an encoded password.
@@ -41,10 +46,5 @@ interface PasswordEncoderInterface
      *
      * @throws \InvalidArgumentException If the salt is invalid
      */
-    public function isPasswordValid(string $encoded, string $raw, ?string $salt);
-
-    /**
-     * Checks if an encoded password would benefit from rehashing.
-     */
-    public function needsRehash(string $encoded): bool;
+    public function isPasswordValid($encoded, $raw, $salt);
 }

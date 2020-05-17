@@ -104,7 +104,15 @@ class BicValidator extends ConstraintValidator
             return;
         }
 
-        if (!Countries::exists(substr($canonicalize, 4, 2))) {
+        // @deprecated since Symfony 4.2, will throw in 5.0
+        if (class_exists(Countries::class)) {
+            $validCountryCode = Countries::exists(substr($canonicalize, 4, 2));
+        } else {
+            $validCountryCode = ctype_alpha(substr($canonicalize, 4, 2));
+            // throw new LogicException('The Intl component is required to use the Bic constraint. Try running "composer require symfony/intl".');
+        }
+
+        if (!$validCountryCode) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $this->formatValue($value))
                 ->setCode(Bic::INVALID_COUNTRY_CODE_ERROR)

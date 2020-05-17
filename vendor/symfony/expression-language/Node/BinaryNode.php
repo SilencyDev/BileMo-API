@@ -84,7 +84,7 @@ class BinaryNode extends Node
         ;
     }
 
-    public function evaluate(array $functions, array $values)
+    public function evaluate($functions, $values)
     {
         $operator = $this->attributes['operator'];
         $left = $this->nodes['left']->evaluate($functions, $values);

@@ -12,7 +12,9 @@
 namespace Symfony\Bridge\Twig\Extension;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\UrlHelper;
+use Symfony\Component\Routing\RequestContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -20,20 +22,47 @@ use Twig\TwigFunction;
  * Twig extension for the Symfony HttpFoundation component.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class HttpFoundationExtension extends AbstractExtension
+class HttpFoundationExtension extends AbstractExtension
 {
     private $urlHelper;
 
-    public function __construct(UrlHelper $urlHelper)
+    /**
+     * @param UrlHelper $urlHelper
+     */
+    public function __construct($urlHelper)
     {
-        $this->urlHelper = $urlHelper;
+        if ($urlHelper instanceof UrlHelper) {
+            $this->urlHelper = $urlHelper;
+
+            return;
+        }
+
+        if (!$urlHelper instanceof RequestStack) {
+            throw new \TypeError(sprintf('The first argument must be an instance of "%s" or an instance of "%s".', UrlHelper::class, RequestStack::class));
+        }
+
+        @trigger_error(sprintf('Passing a "%s" instance as the first argument to the "%s" constructor is deprecated since Symfony 4.3, pass a "%s" instance instead.', RequestStack::class, __CLASS__, UrlHelper::class), E_USER_DEPRECATED);
+
+        $requestContext = null;
+        if (2 === \func_num_args()) {
+            $requestContext = func_get_arg(1);
+            if (null !== $requestContext && !$requestContext instanceof RequestContext) {
+                throw new \TypeError(sprintf('The second argument must be an instance of "%s".', RequestContext::class));
+            }
+        }
+
+        $this->urlHelper = new UrlHelper($urlHelper, $requestContext);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return TwigFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return [
             new TwigFunction('absolute_url', [$this, 'generateAbsoluteUrl']),
@@ -46,9 +75,13 @@ final class HttpFoundationExtension extends AbstractExtension
      *
      * This method returns the path unchanged if no request is available.
      *
+     * @param string $path The path
+     *
+     * @return string The absolute URL
+     *
      * @see Request::getUriForPath()
      */
-    public function generateAbsoluteUrl(string $path): string
+    public function generateAbsoluteUrl($path)
     {
         return $this->urlHelper->getAbsoluteUrl($path);
     }
@@ -58,10 +91,24 @@ final class HttpFoundationExtension extends AbstractExtension
      *
      * This method returns the path unchanged if no request is available.
      *
+     * @param string $path The path
+     *
+     * @return string The relative path
+     *
      * @see Request::getRelativeUriForPath()
      */
-    public function generateRelativePath(string $path): string
+    public function generateRelativePath($path)
     {
         return $this->urlHelper->getRelativePath($path);
+    }
+
+    /**
+     * Returns the name of the extension.
+     *
+     * @return string The extension name
+     */
+    public function getName()
+    {
+        return 'request';
     }
 }

@@ -54,7 +54,7 @@ final class SodiumPasswordEncoder implements PasswordEncoderInterface, SelfSalti
     /**
      * {@inheritdoc}
      */
-    public function encodePassword(string $raw, ?string $salt): string
+    public function encodePassword($raw, $salt): string
     {
         if (\strlen($raw) > self::MAX_PASSWORD_LENGTH) {
             throw new BadCredentialsException('Invalid password.');
@@ -74,7 +74,7 @@ final class SodiumPasswordEncoder implements PasswordEncoderInterface, SelfSalti
     /**
      * {@inheritdoc}
      */
-    public function isPasswordValid(string $encoded, string $raw, ?string $salt): bool
+    public function isPasswordValid($encoded, $raw, $salt): bool
     {
         if ('' === $raw) {
             return false;

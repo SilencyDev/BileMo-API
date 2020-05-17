@@ -19,10 +19,15 @@ use Twig\Node\Expression\NameExpression;
 use Twig\Node\Node;
 use Twig\Node\TextNode;
 
+// BC/FC with namespaced Twig
+class_exists('Twig\Node\Expression\ArrayExpression');
+
 /**
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.4
  */
-final class TransNode extends Node
+class TransNode extends Node
 {
     public function __construct(Node $body, Node $domain = null, AbstractExpression $count = null, AbstractExpression $vars = null, AbstractExpression $locale = null, int $lineno = 0, string $tag = null)
     {
@@ -43,7 +48,10 @@ final class TransNode extends Node
         parent::__construct($nodes, [], $lineno, $tag);
     }
 
-    public function compile(Compiler $compiler): void
+    /**
+     * @return void
+     */
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
 
@@ -100,7 +108,7 @@ final class TransNode extends Node
         $compiler->raw(");\n");
     }
 
-    private function compileString(Node $body, ArrayExpression $vars, bool $ignoreStrictCheck = false): array
+    protected function compileString(Node $body, ArrayExpression $vars, $ignoreStrictCheck = false)
     {
         if ($body instanceof ConstantExpression) {
             $msg = $body->getAttribute('value');

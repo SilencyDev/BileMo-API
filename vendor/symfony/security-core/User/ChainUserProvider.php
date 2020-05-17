@@ -49,7 +49,7 @@ class ChainUserProvider implements UserProviderInterface, PasswordUpgraderInterf
     /**
      * {@inheritdoc}
      */
-    public function loadUserByUsername(string $username)
+    public function loadUserByUsername($username)
     {
         foreach ($this->providers as $provider) {
             try {
@@ -98,7 +98,7 @@ class ChainUserProvider implements UserProviderInterface, PasswordUpgraderInterf
     /**
      * {@inheritdoc}
      */
-    public function supportsClass(string $class)
+    public function supportsClass($class)
     {
         foreach ($this->providers as $provider) {
             if ($provider->supportsClass($class)) {
