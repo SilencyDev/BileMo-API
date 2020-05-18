@@ -5,24 +5,21 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @ApiResource(
+ *  normalizationContext={"groups"={"product:read"}},
+ *  denormalizationContext={"groups"={"product:write"}},
  *  itemOperations={
- *      "get",
- *      "put"={
- *          "access_control"="is_granted('ROLE_ADMIN')"
- *      },
- *      "delete"={
- *          "access_control"="is_granted('ROLE_ADMIN')"
- *      }
+ *      "get"={},
+ *      "put"={},
+ *      "delete"={},
  *  },
  *  collectionOperations={
- *      "get",
- *      "post"={
- *          "access_control"="is_granted('ROLE_ADMIN')"
- *      }
+ *      "get"={},
+ *      "post"={},
  *  }
  * )
  */
@@ -32,24 +29,28 @@ class Product
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"product:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Groups({"product:read", "product:write"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Groups({"product:read", "product:write"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
      * @Assert\NotBlank
+     * @Groups({"product:read", "product:write"})
      */
     private $price;
 

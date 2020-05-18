@@ -5,23 +5,47 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ApiResource
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ApiResource(
+ *  normalizationContext={"groups"={"user:read"}},
+ *  denormalizationContext={"groups"={"user:write"}},
+ *  itemOperations={
+ *      "get"={},
+ *      "put"={},
+ *      "delete"={}, 
+ *  },
+ *  collectionOperations={
+ *      "get"={},
+ *      "post"={},
+ *  *    "api_clients_users_get_subresource"={
+ *          "normalization_context"={
+ *               "groups"={"api_clients_users_get_subresource"}
+ *          }
+ *      }
+ *  }    
+ * )
  */
 class User
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer")'
+     * @Groups({"user:read", "api_clients_users_get_subresource"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Groups({"user:read", "user:write", "api_clients_users_get_subresource"})
+     * @Assert\Length(
+     *     min = 3,
+     *     max = 50
+     * )
      */
     private $username;
 
@@ -29,23 +53,27 @@ class User
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Assert\Email
+     * @Groups({"user:read", "user:write", "api_clients_users_get_subresource"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="datetime")
      * @Assert\NotBlank
+     * @Groups({"user:read", "user:write", "api_clients_users_get_subresource"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"user:read", "user:write", "api_clients_users_get_subresource"})
      */
     private $updatedAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="users")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Client", inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"user:read"})
      */
     private $client;
 
