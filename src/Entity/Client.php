@@ -7,9 +7,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 
 /**
- * @ORM\Entity(repositoryClass=ClientRepository::class)
+ * @ORM\Entity(repositoryClass="App\Repository\ClientRepository")
+ * @ApiResource(
+ *  normalizationContext={"groups"={"client:read"}},
+ *  denormalizationContext={"groups"={"client:write"}},
+ *  itemOperations={
+ *      "get"={},
+ *  },
+ *  collectionOperations={
+ *      "get"={},
+ *      "post"={"controller"="App\Controller\Api\CreateClient"},
+ *  },
+ * )
  */
 class Client implements UserInterface
 {
@@ -23,6 +37,11 @@ class Client implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Assert\Length(
+     *     min = 3,
+     *     max = 50
+     * )
+     * @Groups({"client:write"})
      */
     private $username;
 
@@ -30,22 +49,27 @@ class Client implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Assert\Email
+     * @Groups({"client:write"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Groups({"client:write"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"client:write"})
      */
     private $roles = [];
 
     /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="client")
+     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="client")
+     * @Groups({"client:write"})
+     * @ApiSubresource()
      */
     private $users;
 
