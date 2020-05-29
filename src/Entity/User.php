@@ -4,8 +4,9 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -13,13 +14,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *  normalizationContext={"groups"={"user:read"}},
  *  denormalizationContext={"groups"={"user:write"}},
  *  itemOperations={
- *      "get"={},
- *      "put"={},
+ *      "get"={{"security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')"}},
+ *      "put"={
+ *          "controller"="App\Controller\Api\UserPutController",
+ *          "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
+ *      },
  *      "delete"={}, 
  *  },
  *  collectionOperations={
- *      "get"={},
- *      "post"={},
+ *      "get"={
+ *          "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')"
+ *      },
+ *      "post"={
+ *          "controller"="App\Controller\Api\UserCreateController",
+ *          "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
+ *      },
  *  *    "api_clients_users_get_subresource"={
  *          "normalization_context"={
  *               "groups"={"api_clients_users_get_subresource"}
@@ -27,6 +36,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *      }
  *  }    
  * )
+ * @UniqueEntity("email")
  */
 class User
 {
@@ -60,13 +70,13 @@ class User
     /**
      * @ORM\Column(type="datetime")
      * @Assert\NotBlank
-     * @Groups({"user:read", "user:write", "api_clients_users_get_subresource"})
+     * @Groups({"user:read", "api_clients_users_get_subresource"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"user:read", "user:write", "api_clients_users_get_subresource"})
+     * @Groups({"user:read", "api_clients_users_get_subresource"})
      */
     private $updatedAt;
 

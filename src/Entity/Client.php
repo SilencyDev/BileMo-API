@@ -4,12 +4,13 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClientRepository")
@@ -17,13 +18,15 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
  *  normalizationContext={"groups"={"client:read"}},
  *  denormalizationContext={"groups"={"client:write"}},
  *  itemOperations={
- *      "get"={},
+ *      "get"={"security"="is_granted('ROLE_ADMIN')"},
  *  },
  *  collectionOperations={
- *      "get"={},
- *      "post"={"controller"="App\Controller\Api\CreateClient"},
+ *      "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *      "post"={"controller"="App\Controller\Api\ClientCreateController", "security"="is_granted('ROLE_ADMIN')"},
  *  },
  * )
+ * @UniqueEntity("username")
+ * @UniqueEntity("email")
  */
 class Client implements UserInterface
 {
@@ -41,7 +44,7 @@ class Client implements UserInterface
      *     min = 3,
      *     max = 50
      * )
-     * @Groups({"client:write"})
+     * @Groups({"client:write", "client:read", "user:read"})
      */
     private $username;
 
@@ -49,7 +52,7 @@ class Client implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Assert\Email
-     * @Groups({"client:write"})
+     * @Groups({"client:write", "client:read"})
      */
     private $email;
 
@@ -62,13 +65,12 @@ class Client implements UserInterface
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"client:write"})
+     * @Groups({"client:write", "client:read"})
      */
     private $roles = [];
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="client")
-     * @Groups({"client:write"})
+     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="client", orphanRemoval=true)
      * @ApiSubresource()
      */
     private $users;
