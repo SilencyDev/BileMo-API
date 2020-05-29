@@ -3,9 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
@@ -13,15 +14,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *  normalizationContext={"groups"={"product:read"}},
  *  denormalizationContext={"groups"={"product:write"}},
  *  itemOperations={
- *      "get"={},
- *      "put"={},
- *      "delete"={},
+ *      "get"={{"security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')"}},
+ *      "put"={{"security"="is_granted('ROLE_ADMIN')"}},
+ *      "delete"={{"security"="is_granted('ROLE_ADMIN')"}},
  *  },
  *  collectionOperations={
- *      "get"={},
- *      "post"={},
+ *      "get"={{"security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')"}},
+ *      "post"={{"security"="is_granted('ROLE_ADMIN')"}},
  *  }
  * )
+ * @UniqueEntity("name")
  */
 class Product
 {

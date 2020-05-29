@@ -4,7 +4,7 @@ namespace App\Controller\Api;
 
 use App\Services\PasswordService;
 
-class CreateClient
+class ClientCreateController
 {
     protected $passwordServices;
 
