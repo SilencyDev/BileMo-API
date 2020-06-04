@@ -12,12 +12,11 @@
 namespace Symfony\Bundle\SecurityBundle\DependencyInjection;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SimpleFormFactory;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SimplePreAuthenticationFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategy;
 
 /**
@@ -74,11 +73,12 @@ class MainConfiguration implements ConfigurationInterface
                 ->booleanNode('hide_user_not_found')->defaultTrue()->end()
                 ->booleanNode('always_authenticate_before_granting')->defaultFalse()->end()
                 ->booleanNode('erase_credentials')->defaultTrue()->end()
+                ->booleanNode('enable_authenticator_manager')->defaultFalse()->info('Enables the new Symfony Security system based on Authenticators, all used authenticators must support this before enabling this.')->end()
                 ->arrayNode('access_decision_manager')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->enumNode('strategy')
-                            ->values([AccessDecisionManager::STRATEGY_AFFIRMATIVE, AccessDecisionManager::STRATEGY_CONSENSUS, AccessDecisionManager::STRATEGY_UNANIMOUS])
+                            ->values($this->getAccessDecisionStrategies())
                         ->end()
                         ->scalarNode('service')->end()
                         ->booleanNode('allow_if_all_abstain')->defaultFalse()->end()
@@ -197,12 +197,8 @@ class MainConfiguration implements ConfigurationInterface
             ->scalarNode('entry_point')->end()
             ->scalarNode('provider')->end()
             ->booleanNode('stateless')->defaultFalse()->end()
+            ->booleanNode('lazy')->defaultFalse()->end()
             ->scalarNode('context')->cannotBeEmpty()->end()
-            ->booleanNode('logout_on_user_change')
-                ->defaultTrue()
-                ->info('When true, it will trigger a logout for the user if something has changed. Note: No-Op option since 4.0. Will always be true.')
-                ->setDeprecated('The "%path%.%node%" configuration key has been deprecated in Symfony 4.1.')
-            ->end()
             ->arrayNode('logout')
                 ->treatTrueLike([])
                 ->canBeUnset()
@@ -212,7 +208,7 @@ class MainConfiguration implements ConfigurationInterface
                     ->scalarNode('csrf_token_id')->defaultValue('logout')->end()
                     ->scalarNode('path')->defaultValue('/logout')->end()
                     ->scalarNode('target')->defaultValue('/')->end()
-                    ->scalarNode('success_handler')->end()
+                    ->scalarNode('success_handler')->setDeprecated('symfony/security-bundle', '5.1', sprintf('The "%%node%%" at path "%%path%%" is deprecated, register a listener on the "%s" event instead.', LogoutEvent::class))->end()
                     ->booleanNode('invalidate_session')->defaultTrue()->end()
                 ->end()
                 ->fixXmlConfig('delete_cookie')
@@ -222,22 +218,6 @@ class MainConfiguration implements ConfigurationInterface
                         ->beforeNormalization()
                             ->ifTrue(function ($v) { return \is_array($v) && \is_int(key($v)); })
                             ->then(function ($v) { return array_map(function ($v) { return ['name' => $v]; }, $v); })
-                        ->end()
-                        ->beforeNormalization()
-                            ->ifArray()->then(function ($v) {
-                                foreach ($v as $originalName => $cookieConfig) {
-                                    if (false !== strpos($originalName, '-')) {
-                                        $normalizedName = str_replace('-', '_', $originalName);
-                                        @trigger_error(sprintf('Normalization of cookie names is deprecated since Symfony 4.3. Starting from Symfony 5.0, the "%s" cookie configured in "logout.delete_cookies" will delete the "%s" cookie instead of the "%s" cookie.', $originalName, $originalName, $normalizedName), E_USER_DEPRECATED);
-
-                                        // normalize cookie names manually for BC reasons. Remove it in Symfony 5.0.
-                                        $v[$normalizedName] = $cookieConfig;
-                                        unset($v[$originalName]);
-                                    }
-                                }
-
-                                return $v;
-                            })
                         ->end()
                         ->useAttributeAsKey('name')
                         ->prototype('array')
@@ -253,7 +233,7 @@ class MainConfiguration implements ConfigurationInterface
                 ->fixXmlConfig('handler')
                 ->children()
                     ->arrayNode('handlers')
-                        ->prototype('scalar')->end()
+                        ->prototype('scalar')->setDeprecated('symfony/security-bundle', '5.1', sprintf('The "%%node%%" at path "%%path%%" is deprecated, register a listener on the "%s" event instead.', LogoutEvent::class))->end()
                     ->end()
                 ->end()
             ->end()
@@ -263,10 +243,6 @@ class MainConfiguration implements ConfigurationInterface
                     ->scalarNode('provider')->end()
                     ->scalarNode('parameter')->defaultValue('_switch_user')->end()
                     ->scalarNode('role')->defaultValue('ROLE_ALLOWED_TO_SWITCH')->end()
-                    ->booleanNode('stateless')
-                        ->setDeprecated('The "%path%.%node%" configuration key has been deprecated in Symfony 4.1.')
-                        ->defaultValue(false)
-                    ->end()
                 ->end()
             ->end()
         ;
@@ -278,10 +254,6 @@ class MainConfiguration implements ConfigurationInterface
                 $factoryNode = $firewallNodeBuilder->arrayNode($name)
                     ->canBeUnset()
                 ;
-
-                if ($factory instanceof SimplePreAuthenticationFactory || $factory instanceof SimpleFormFactory) {
-                    $factoryNode->setDeprecated(sprintf('The "%s" security listener is deprecated Symfony 4.2, use Guard instead.', $name));
-                }
 
                 if ($factory instanceof AbstractFactory) {
                     $abstractFactoryKeys[] = $name;
@@ -418,15 +390,26 @@ class MainConfiguration implements ConfigurationInterface
                             ->end()
                             ->scalarNode('memory_cost')->defaultNull()->end()
                             ->scalarNode('time_cost')->defaultNull()->end()
-                            ->scalarNode('threads')
-                                ->defaultNull()
-                                ->setDeprecated('The "%path%.%node%" configuration key has no effect since Symfony 4.3 and will be removed in 5.0.')
-                            ->end()
                             ->scalarNode('id')->end()
                         ->end()
                     ->end()
                 ->end()
             ->end()
         ;
+    }
+
+    private function getAccessDecisionStrategies()
+    {
+        $strategies = [
+            AccessDecisionManager::STRATEGY_AFFIRMATIVE,
+            AccessDecisionManager::STRATEGY_CONSENSUS,
+            AccessDecisionManager::STRATEGY_UNANIMOUS,
+        ];
+
+        if (\defined(AccessDecisionManager::class.'::STRATEGY_PRIORITY')) {
+            $strategies[] = AccessDecisionManager::STRATEGY_PRIORITY;
+        }
+
+        return $strategies;
     }
 }

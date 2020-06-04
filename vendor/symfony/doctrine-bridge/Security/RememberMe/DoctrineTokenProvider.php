@@ -55,7 +55,7 @@ class DoctrineTokenProvider implements TokenProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function loadTokenBySeries($series)
+    public function loadTokenBySeries(string $series)
     {
         // the alias for lastUsed works around case insensitivity in PostgreSQL
         $sql = 'SELECT class, username, value, lastUsed AS last_used'
@@ -63,7 +63,7 @@ class DoctrineTokenProvider implements TokenProviderInterface
         $paramValues = ['series' => $series];
         $paramTypes = ['series' => \PDO::PARAM_STR];
         $stmt = $this->conn->executeQuery($sql, $paramValues, $paramTypes);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $row = method_exists($stmt, 'fetchAssociative') ? $stmt->fetchAssociative() : $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($row) {
             return new PersistentToken($row['class'], $row['username'], $series, $row['value'], new \DateTime($row['last_used']));
@@ -75,7 +75,7 @@ class DoctrineTokenProvider implements TokenProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteTokenBySeries($series)
+    public function deleteTokenBySeries(string $series)
     {
         $sql = 'DELETE FROM rememberme_token WHERE series=:series';
         $paramValues = ['series' => $series];
@@ -86,7 +86,7 @@ class DoctrineTokenProvider implements TokenProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function updateToken($series, $tokenValue, \DateTime $lastUsed)
+    public function updateToken(string $series, string $tokenValue, \DateTime $lastUsed)
     {
         $sql = 'UPDATE rememberme_token SET value=:value, lastUsed=:lastUsed'
             .' WHERE series=:series';

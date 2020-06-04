@@ -30,8 +30,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 abstract class ConstraintValidatorTestCase extends TestCase
 {
-    use ForwardCompatTestTrait;
-
     /**
      * @var ExecutionContextInterface
      */
@@ -51,7 +49,7 @@ abstract class ConstraintValidatorTestCase extends TestCase
     protected $constraint;
     protected $defaultTimezone;
 
-    private function doSetUp()
+    protected function setUp(): void
     {
         $this->group = 'MyGroup';
         $this->metadata = null;
@@ -73,7 +71,7 @@ abstract class ConstraintValidatorTestCase extends TestCase
         $this->setDefaultTimezone('UTC');
     }
 
-    private function doTearDown()
+    protected function tearDown(): void
     {
         $this->restoreDefaultTimezone();
     }
@@ -183,6 +181,15 @@ abstract class ConstraintValidatorTestCase extends TestCase
             ->willReturn($validator);
     }
 
+    protected function expectValidateValue(int $i, $value, array $constraints = [], $group = null)
+    {
+        $contextualValidator = $this->context->getValidator()->inContext($this->context);
+        $contextualValidator->expects($this->at($i))
+            ->method('validate')
+            ->with($value, $constraints, $group)
+            ->willReturn($contextualValidator);
+    }
+
     protected function expectValidateValueAt($i, $propertyPath, $value, $constraints, $group = null)
     {
         $contextualValidator = $this->context->getValidator()->inContext($this->context);
@@ -194,6 +201,25 @@ abstract class ConstraintValidatorTestCase extends TestCase
             ->method('validate')
             ->with($value, $constraints, $group)
             ->willReturn($contextualValidator);
+    }
+
+    protected function expectViolationsAt($i, $value, Constraint $constraint)
+    {
+        $context = $this->createContext();
+
+        $validatorClassname = $constraint->validatedBy();
+
+        $validator = new $validatorClassname();
+        $validator->initialize($context);
+        $validator->validate($value, $constraint);
+
+        $this->context->getValidator()
+            ->expects($this->at($i))
+            ->method('validate')
+            ->willReturn($context->getViolations())
+        ;
+
+        return $context->getViolations();
     }
 
     protected function assertNoViolation()

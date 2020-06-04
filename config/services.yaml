@@ -34,4 +34,4 @@ services:
     App\Swagger\SwaggerDecorator:
         decorates: 'api_platform.swagger.normalizer.documentation'
         arguments: ['@App\Swagger\SwaggerDecorator.inner']
-        autoconfigure: false
+        autoconfigure: true
