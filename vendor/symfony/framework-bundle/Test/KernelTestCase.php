@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 abstract class KernelTestCase extends TestCase
 {
-    use ForwardCompatTestTrait;
+    use MailerAssertionsTrait;
 
     protected static $class;
 
@@ -41,7 +41,7 @@ abstract class KernelTestCase extends TestCase
 
     private static $kernelContainer;
 
-    private function doTearDown()
+    protected function tearDown(): void
     {
         static::ensureKernelShutdown();
         static::$kernel = null;

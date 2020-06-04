@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+5.0.0
+-----
+
+ * removed `TwigEngine` class, use `\Twig\Environment` instead.
+ * removed `transChoice` filter and token
+ * `HttpFoundationExtension` requires a `UrlHelper` on instantiation
+ * removed support for implicit STDIN usage in the `lint:twig` command, use `lint:twig -` (append a dash) instead to make it explicit.
+ * added form theme for Foundation 6
+ * added support for Foundation 6 switches: add the `switch-input` class to the attributes of a `CheckboxType`
+
 4.4.0
 -----
 

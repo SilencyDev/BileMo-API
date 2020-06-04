@@ -1,6 +1,33 @@
 CHANGELOG
 =========
 
+5.1.0
+-----
+
+ * added the `Hostname` constraint and validator
+ * added the `alpha3` option to the `Country` and `Language` constraints
+ * allow to define a reusable set of constraints by extending the `Compound` constraint
+ * added `Sequentially` constraint, to sequentially validate a set of constraints (any violation raised will prevent further validation of the nested constraints)
+ * added the `divisibleBy` option to the `Count` constraint
+ * added the `ExpressionLanguageSyntax` constraint
+
+5.0.0
+-----
+
+ * an `ExpressionLanguage` instance or null must be passed as the first argument of `ExpressionValidator::__construct()`
+ * removed the `checkDNS` and `dnsMessage` options of the `Url` constraint
+ * removed the `checkMX`, `checkHost` and `strict` options of the `Email` constraint
+ * removed support for validating instances of `\DateTimeInterface` in `DateTimeValidator`, `DateValidator` and `TimeValidator`
+ * removed support for using the `Bic`, `Country`, `Currency`, `Language` and `Locale` constraints without `symfony/intl`
+ * removed support for using the `Email` constraint without `egulias/email-validator`
+ * removed support for using the `Expression` constraint without `symfony/expression-language`
+ * changed default value of `canonicalize` option of `Locale` constraint to `true`
+ * removed `ValidatorBuilderInterface`
+ * passing a null message when instantiating a `ConstraintViolation` is not allowed
+ * changed the default value of `Length::$allowEmptyString` to `false` and made it optional
+ * removed `Symfony\Component\Validator\Mapping\Cache\CacheInterface` in favor of PSR-6.
+ * removed `ValidatorBuilder::setMetadataCache`, use `ValidatorBuilder::setMappingCache` instead.
+
 4.4.0
 -----
 
