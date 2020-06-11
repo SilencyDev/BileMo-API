@@ -46,7 +46,7 @@ class Client implements UserInterface
      * )
      * @Groups({"client:write", "client:read", "user:read"})
      */
-    private $username;
+    private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -183,18 +183,6 @@ class Client implements UserInterface
      */ 
     public function getUsername()
     {
-        return $this->username;
-    }
-
-    /**
-     * Set the value of username
-     *
-     * @return  self
-     */ 
-    public function setUsername($username)
-    {
-        $this->username = $username;
-
-        return $this;
+        return $this->email;
     }
 }

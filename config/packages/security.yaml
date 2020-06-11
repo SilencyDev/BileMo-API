@@ -4,10 +4,10 @@ security:
             algorithm: bcrypt
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-            app_user_provider:
-                entity:
-                    class: 'App\Entity\Client'
-                    property: 'email'
+        app_user_provider:
+            entity:
+                class: 'App\Entity\Client'
+                property: 'email'
     firewalls:
         dev:
             pattern: ^/_(profiler|wdt)
