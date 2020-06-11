@@ -30,7 +30,7 @@ final class SwaggerDecorator implements NormalizerInterface
             'properties' => [
                 'token' => [
                     'type' => 'string',
-                    'readOnly' => true,
+                    'readOnly' => false,
                 ],
             ],
         ];
@@ -40,11 +40,9 @@ final class SwaggerDecorator implements NormalizerInterface
             'properties' => [
                 'username' => [
                     'type' => 'string',
-                    'example' => 'api',
                 ],
                 'password' => [
                     'type' => 'string',
-                    'example' => 'api',
                 ],
             ],
         ];
@@ -83,6 +81,6 @@ final class SwaggerDecorator implements NormalizerInterface
             ],
         ];
 
-        return array_merge_recursive($docs, $tokenDocumentation);
+        return array_merge_recursive($tokenDocumentation, $docs);
     }
 }
