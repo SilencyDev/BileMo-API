@@ -1,6 +1,6 @@
 api_platform:
     title: "BileMo API"
-    version: 0.0.1
+    version: 1.0.0
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:
