@@ -23,9 +23,10 @@
 ```
     php bin/console doctrine:database:create
 ```
-5. Migrate the database :
+5. You can load the bilemo.sql as pre-recorded data :
 ```
-    php bin/console doctrine:migrations:migrate
+admin account : test@test.fr password: test
+user account : test2@test.fr password: test
 ```
 6. Create SSH Keys ([OpenSSL for Windows](https://slproweb.com/products/Win32OpenSSL.html))
 Add your passphrase "JWT_PASSPHRASE=" into `.env.local` or `env`

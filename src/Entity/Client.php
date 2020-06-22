@@ -26,7 +26,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      "post"={"controller"="App\Controller\Api\ClientCreateController", "security"="is_granted('ROLE_ADMIN')"},
  *  },
  * )
- * @UniqueEntity("username")
+ * @UniqueEntity("name")
  * @UniqueEntity("email")
  */
 class Client implements UserInterface
