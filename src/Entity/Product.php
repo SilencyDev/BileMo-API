@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @ApiResource(
+ *  cacheHeaders={"max_age"=0, "shared_max_age"=3600, "vary"={"Authorization", "Accept-Language"}},
  *  normalizationContext={"groups"={"product:read"}},
  *  denormalizationContext={"groups"={"product:write"}},
  *  itemOperations={
@@ -41,6 +42,13 @@ class Product
      * @Groups({"product:read", "product:write"})
      */
     private $name;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"product:read", "product:write"})
+     */
+    private $brand;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -93,6 +101,26 @@ class Product
     public function setPrice(string $price): self
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of brand
+     */ 
+    public function getBrand()
+    {
+        return $this->brand;
+    }
+
+    /**
+     * Set the value of brand
+     *
+     * @return  self
+     */ 
+    public function setBrand($brand)
+    {
+        $this->brand = $brand;
 
         return $this;
     }

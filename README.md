@@ -4,6 +4,7 @@
 
 ## API informations
 * You access to your token via /authentication_token route -> email and password are used as credentials
+* You can access to the documentation via the /docs route
 * Only fully authenticated user are allowed to make changes related to their profile "owned users"
 * Admin has access to every ressources even the ones that aren't linked to their profile "products/clients/users"
 

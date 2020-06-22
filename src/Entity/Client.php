@@ -15,6 +15,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClientRepository")
  * @ApiResource(
+ *  cacheHeaders={"max_age"=0, "shared_max_age"=3600, "vary"={"Authorization", "Accept-Language"}},
  *  normalizationContext={"groups"={"client:read"}},
  *  denormalizationContext={"groups"={"client:write"}},
  *  itemOperations={
