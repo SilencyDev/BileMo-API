@@ -7,6 +7,11 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
@@ -22,7 +27,18 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *  collectionOperations={
  *      "get"={{"security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')"}},
  *      "post"={{"security"="is_granted('ROLE_ADMIN')"}},
- *  }
+ *  },
+ *  subresourceOperations={
+ *      "api_clients_products_get_subresource"={
+ *          "normalization_context"={
+ *               "groups"={"api_clients_products_get_subresource"}
+ *          },
+ *          "security"="is_granted('ROLE_ADMIN')",
+ *      }
+ *  }   
+ * )
+ * @ApiFilter(
+ *  SearchFilter::class, properties={"price": "exact", "brand":"exact"}
  * )
  * @UniqueEntity("name")
  */
@@ -39,30 +55,41 @@ class Product
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups({"product:read", "product:write"})
+     * @Groups({"product:read", "product:write", "api_clients_products_get_subresource"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups({"product:read", "product:write"})
+     * @Groups({"product:read", "product:write", "api_clients_products_get_subresource"})
      */
     private $brand;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
-     * @Groups({"product:read", "product:write"})
+     * @Groups({"product:read", "product:write", "api_clients_products_get_subresource"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
      * @Assert\NotBlank
-     * @Groups({"product:read", "product:write"})
+     * @Groups({"product:read", "product:write", "api_clients_products_get_subresource"})
      */
     private $price;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Client", mappedBy="products")
+     * @Groups({"admin:read", "admin:write"})
+     */
+    private $clients;
+
+    public function __construct()
+    {
+        $this->clients = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -121,6 +148,31 @@ class Product
     public function setBrand($brand)
     {
         $this->brand = $brand;
+
+        return $this;
+    }
+
+    public function getclients(): Collection
+    {
+        return $this->clients;
+    }
+
+    public function addClient(Client $client): self
+    {
+        if (!$this->clients->contains($client)) {
+            $this->clients[] = $client;
+            $client->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClient(Client $client): self
+    {
+        if ($this->clients->contains($client)) {
+            $this->clients->removeElement($client);
+            $client->removeProduct($this);
+        }
 
         return $this;
     }
