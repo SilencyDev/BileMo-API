@@ -30,12 +30,15 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          "controller"="App\Controller\Api\UserCreateController",
  *          "security"="is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
  *      },
- *  *    "api_clients_users_get_subresource"={
+ *  },
+ *  subresourceOperations={
+ *      "api_clients_users_get_subresource"={
  *          "normalization_context"={
  *               "groups"={"api_clients_users_get_subresource"}
- *          }
+ *          },
+ *          "security"="is_granted('ROLE_ADMIN')",
  *      }
- *  }    
+ *  }   
  * )
  * @UniqueEntity("email")
  */

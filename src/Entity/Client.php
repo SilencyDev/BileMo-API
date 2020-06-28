@@ -20,6 +20,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *  denormalizationContext={"groups"={"client:write"}},
  *  itemOperations={
  *      "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *      "put"={{"security"="is_granted('ROLE_ADMIN')"}},
+ *      "delete"={{"security"="is_granted('ROLE_ADMIN')"}},
  *  },
  *  collectionOperations={
  *      "get"={"security"="is_granted('ROLE_ADMIN')"},
@@ -76,9 +78,16 @@ class Client implements UserInterface
      */
     private $users;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Product", inversedBy="clients")
+     * @ApiSubresource()
+     */
+    private $products;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -160,6 +169,31 @@ class Client implements UserInterface
             if ($user->getClient() === $this) {
                 $user->setClient(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->addClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->contains($product)) {
+            $this->products->removeElement($product);
+            $product->removeClient($this);
         }
 
         return $this;
