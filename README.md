@@ -23,8 +23,10 @@
 ```
     php bin/console doctrine:database:create
 ```
-5. You can load the bilemo.sql as pre-recorded data :
+5. You can load the bilemo fixture as pre-recorded data :
 ```
+php bin/console doctrine:fixtures:load
+
 admin account : test@test.fr password: test
 user account : test2@test.fr password: test
 ```
