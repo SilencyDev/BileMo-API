@@ -21,6 +21,7 @@
         "symfony/yaml": "5.*"
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.3"
     },
     "config": {
         "preferred-install": {
