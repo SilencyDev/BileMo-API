@@ -23,14 +23,18 @@
 ```
     php bin/console doctrine:database:create
 ```
-5. You can load the bilemo fixture as pre-recorded data :
+5. Create the tables into the database with migration :
+```
+    php bin/console doctrine:migrations:migrate
+```
+6. You can load the bilemo fixture as pre-recorded data :
 ```
 php bin/console doctrine:fixtures:load
 
 admin account : test@test.fr password: test
 user account : test2@test.fr password: test
 ```
-6. Create SSH Keys ([OpenSSL for Windows](https://slproweb.com/products/Win32OpenSSL.html))
+7. Create SSH Keys ([OpenSSL for Windows](https://slproweb.com/products/Win32OpenSSL.html))
 Add your passphrase "JWT_PASSPHRASE=" into `.env.local` or `env`
 ```bash
 $ mkdir config/jwt
