@@ -8,6 +8,14 @@
 * Only fully authenticated user are allowed to make changes related to their profile "owned users"
 * Admin has access to every ressources even the ones that aren't linked to their profile "products/clients/users"
 
+## Environnement used during the developpement
+* 5.1.0
+* API Platform 2.5.6
+* WampServer 3.2.2
+* PHP 7.3.12
+* MariaDB 10.4.10
+* Composer 1.10.7
+
 ## Installation
 1. Clonez or download the project :
 ```
